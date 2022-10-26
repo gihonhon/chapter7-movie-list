@@ -1,0 +1,83 @@
+.movie-card {
+    border-radius: 15px;
+    box-shadow: inset 0 0 10rem 5rem rgb(0 0 0 / 10%);
+    width: 20rem;
+    height: 30rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.movie-card img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.movie-card:hover img {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.movie-info {
+    height: 100%;
+    color: rgba(255, 255, 255, 1);
+    background-color: transparent;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 22rem 1rem 0 1rem;
+    transform: translateY(100%);
+    transition: transform 400ms ease-in-out;
+}
+
+.movie-card:hover .movie-info {
+    background-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(0%);
+}
+
+.commentCard {
+    padding: 1.75rem;
+    border: 1px solid rgba(229, 231, 235, 1);
+    border-radius: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.usersAvatar  img {
+    max-width: 100%;
+    width: 3.5rem;
+    border-radius: 2rem;
+    height: auto;
+    display: block;
+    vertical-align: middle;
+}
+
+.commentCard p {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    font-size: 1.225rem;
+}
+
+.commentCard h5 {
+    font-weight: 400;
+    font-size: 1.225rem;
+    line-height: 1.625rem;
+    margin-bottom: 1rem;
+}
+
+.not-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.not-data h1 {
+    color: rgba(156, 163, 175, 1);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    letter-spacing: 0.4px;
+    padding-top: 1.5rem;
+}

@@ -1,1 +1,1 @@
-# chapter7-movie-list
+# movie-list

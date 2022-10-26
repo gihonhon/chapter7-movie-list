@@ -1,0 +1,46 @@
+.images {
+    position: relative;
+    height: 100vh;
+}
+
+.carousel-item img {
+    background: no-repeat;
+    background-size: cover;
+    filter: brightness(50%);
+}
+
+.carousel-caption {
+    top: 35%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.carousel-caption .container {
+    margin-left: 2rem;
+}
+
+.header {
+    width: 50%;
+}
+
+.title__caption {
+    font-size: 3.6rem;
+    line-height: 1;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.content-section {
+    margin-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.tittle-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+}
