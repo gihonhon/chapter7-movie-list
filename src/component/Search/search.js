@@ -1,44 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import axios from "axios";
-import { Carousel, Button, Container } from 'react-bootstrap'
+import { Carousel, Container } from 'react-bootstrap'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as Rating } from "@fortawesome/free-solid-svg-icons"
 import { background1 } from '../../asset/index_image'
+import { getSearch, searchCategory } from "../../reducer/searchSlice";
+import { getGenres } from "../../reducer/genreSlice";
+import { NoImgAvalible } from "../../asset/index_image";
 import Swipers from "../Swipers/swipers";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import './search.css'
-import NavBar from "../Navbar/navbar";
+import { useDispatch, useSelector } from "react-redux";
 
 
 const Search = () => {
-    const { que, category } = useParams()
-    const navigate = useNavigate()
-    const location = useLocation()
+    const { que, category } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const [movie, setMovie] = useState([])
-    const [cate, setCate] = useState([])
+    const dispatch = useDispatch();
 
-    const loadData = async (que) => {
-        const res = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=a2940e397cdc84f3a8a5619d3d65b9c5&query=${que}`)
-        setMovie(res.data.results)
-    }
+    const genres = useSelector((state) => state.genres);
+    const search = useSelector((state) => state.search.searchs);
+    const searchCate = useSelector((state) => state.searchCate.categorys);
 
-    const searchCate = async (category) => {
-        const getMovie = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=a2940e397cdc84f3a8a5619d3d65b9c5&query=${category}`)
-        const getList = await axios.get(`https://api.themoviedb.org/3/genre/movie/list?api_key=a2940e397cdc84f3a8a5619d3d65b9c5&query=${category}`)
-        setCate(getList.data.genres)
-        setMovie(getMovie.data.results)
-    }
+    // const [movie, setMovie] = useState([])
+    // const [cate, setCate] = useState([])
+
+    // const loadData = async (que) => {
+    //     const res = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=a2940e397cdc84f3a8a5619d3d65b9c5&query=${que}`)
+    //     setMovie(res.data.results)
+    // }
+
+    // const searchCate = async (category) => {
+    //     const getMovie = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=a2940e397cdc84f3a8a5619d3d65b9c5&query=${category}`)
+    //     const getList = await axios.get(`https://api.themoviedb.org/3/genre/movie/list?api_key=a2940e397cdc84f3a8a5619d3d65b9c5&query=${category}`) //genresSlice
+    //     setCate(getList.data.genres)
+    //     setMovie(getMovie.data.results)
+    // }
 
     useEffect(() => {
         if(que) {
-            loadData(que)
+            dispatch(getSearch(que));
         } else {
-            searchCate(category)
+            dispatch(searchCategory(category));
+            dispatch(getGenres);
         }
-    }, [que, category])
+    }, [que, category, dispatch])
 
     return (
         <div>
@@ -66,18 +75,22 @@ const Search = () => {
                 {category ? (
                     <>
                     <h1 className="tittle-section">Browse by category {location.state}</h1>
-                    <Swipers cate={cate}/>
+                    <Swipers cate={genres.genres}/>
                     </>
                 ):(
                     <h1 className="tittle-section">Search result "{que}"</h1>
                 )}
 
-                {movie.length > 0 ? (
+                {search.length> 0 ? (
                     <div className="movieWrapper">
-                        {movie.map((movies) => {
+                        {search.map((movies, index) => {
                             return (
-                                <div className="movie-card" onClick={() => navigate(`/movie/${movies.id}`)}>
-                                    <img className="image-card" src={`https://image.tmdb.org/t/p/w500/${movies.poster_path}`}/>
+                                <div className="movie-card" key={index} onClick={() => navigate(`/movie/${movies.id}`)}>
+                                    {movies.poster_path !== null ? (
+                                        <img className="image-card" src={`https://image.tmdb.org/t/p/w500/${movies.poster_path}`}/>
+                                    ) : (
+                                        <img className="image-card" src={NoImgAvalible}/>
+                                    )};
                                     <div className="movie-info">
                                         <h5>{movies.original_title}</h5>
                                         <p><FontAwesomeIcon color="orange" icon={Rating}/>{movies.vote_average}/10</p>
@@ -91,6 +104,30 @@ const Search = () => {
                         <h1>There not found</h1>
                     </div>
                 )}
+
+                    {searchCate.length> 0 ? (
+                        <div className="movieWrapper">
+                            {searchCate.map((movies, index) => {
+                                return (
+                                    <div className="movie-card" key={index} onClick={() => navigate(`/movie/${movies.id}`)}>
+                                        {movies.poster_path !== null ? (
+                                        <img className="image-card" src={`https://image.tmdb.org/t/p/w500/${movies.poster_path}`}/>
+                                        ) : (
+                                        <img className="image-card" src={NoImgAvalible}/>
+                                        )};
+                                        <div className="movie-info">
+                                            <h5>{movies.original_title}</h5>
+                                            <p><FontAwesomeIcon color="orange" icon={Rating}/>{movies.vote_average}/10</p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                    <div>
+                        <h1>There not found</h1>
+                    </div>
+                    )};
             </section>
         </div>
     )

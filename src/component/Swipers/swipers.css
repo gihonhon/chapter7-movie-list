@@ -30,6 +30,10 @@
     transition: transform 400ms ease-in-out;
 }
 
+.movie-info h5 {
+    color: white;
+}
+
 .movie-card:hover .movie-info {
     background-color: rgba(0, 0, 0, 0.2);
     transform: translateY(0%);

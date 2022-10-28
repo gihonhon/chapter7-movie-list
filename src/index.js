@@ -25,6 +25,7 @@ root.render(
       <Route path='/movie/:id' element={<Detail/>}></Route>
       <Route path='/search/:que' element={<Search/>}></Route>
       <Route path='/cat/:category' element={<Search/>}></Route>
+
     </Routes>
     <Footer/>
     </BrowserRouter>

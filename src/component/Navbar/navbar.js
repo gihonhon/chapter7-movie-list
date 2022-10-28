@@ -1,144 +1,101 @@
 import React, { useState, useEffect } from "react";
-import { Container, Navbar, Nav, Form, Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import { useDispatch } from "react-redux";
+import { onLogin, onRegister } from "../../reducer/logRegSlice";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import jwt_decode from "jwt-decode";
-import axios from "axios";
 import Swal from "sweetalert2";
+import { Modal, Input, Form } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass as SearchIcon } from "@fortawesome/free-solid-svg-icons";
 import {
   faEnvelope as emailIcon,
-  faEye as eyeIcon,
-  faEyeSlash as eyeSlash,
+  faCircleUser as usersIcons,
 } from "@fortawesome/free-regular-svg-icons";
 import "@fortawesome/fontawesome-svg-core/styles.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "antd/dist/antd.css";
 import { Logo, account } from "../../asset/index_image";
 import "./navbar.css";
 
-// import Login from "../modal/login";
-// import Register from "../modal/register";
-
-const NavBar = () => {
+const NavigateBar = () => {
+  const [data, setData] = useState([]);
   const navigate = useNavigate();
 
-  const searchRes = async (e) => {
-    e.preventDefault();
-    let data = e.target[0].value;
+  const dispatch = useDispatch();
 
-    navigate(`/search/${data}`);
+  const [isModalLoginOpen, setIsModalLoginOpen] = useState(false);
+  const [isModalRegisOpen, setIsModalRegisOpen] = useState(false);
+  const [isModalProfileOpen, setIsModalProfileOpen] = useState(false);
+
+  const [form] = Form.useForm();
+
+  // Login
+  const showModalLogin = () => {
+    setIsModalLoginOpen(true);
+  };
+  const handleOkLogin = () => {
+    setIsModalLoginOpen(false);
+  };
+  const handleCancelLogin = () => {
+    setIsModalLoginOpen(false);
   };
 
-  // validation
-  let emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-
-  // Login & Register State
-  const [login, setLogin] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-  const handleShowLogin = () => setShowLogin(true);
-  const handleCloseLogin = () => setShowLogin(false);
-  const handleShowRegister = () => setShowRegister(true);
-  const handleCloseRegister = () => setShowRegister(false);
-  const handleShowProfile = () => setShowProfile(true);
-  const handleCloseProfile = () => setShowProfile(false)
-
-  const [user, setUser] = useState();
-  const [email, setEmail] = useState("");
-  const [sandi, setSandi] = useState("");
-
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [emailRegis, setEmailRegis] = useState("");
-  const [sandiRegis, setSandiRegis] = useState("");
-  const [sandiConfirm, setSandiConfirm] = useState("");
-
-  const [showPass, setShowPass] = useState(true);
-  const [pass, setPass] = useState("password");
-  const [typeInput, setTypeInput] = useState(false);
-
-  const Eye = () => {
-    if (pass === "password") {
-      setPass("text");
-      setShowPass(false);
-      setTypeInput(true);
-    } else {
-      setPass("password");
-      setShowPass(true);
-      setTypeInput(false);
-    }
+  // Regis
+  const showModalRegis = () => {
+    setIsModalRegisOpen(true);
+  };
+  const handleOkRegis = () => {
+    setIsModalRegisOpen(false);
+  };
+  const handleCancelRegis = () => {
+    setIsModalRegisOpen(false);
   };
 
-  const handleSubmit = async () => {
-    try {
-      const res = await axios.post(
-        "https://notflixtv.herokuapp.com/api/v1/users/login",
-        {
-          email: email,
-          password: sandi,
-        }
-      );
-      localStorage.setItem("token", JSON.stringify(res.data.data.token));
-      localStorage.setItem("user", JSON.stringify(res.data.data.first_name));
-      localStorage.setItem("image", JSON.parse(res.data.data.image));
-      localStorage.setItem("log", JSON.stringify(res.data.data));
-      setUser(res.data.data);
-      setSandi("");
-      setEmail("");
-      setShowLogin(false);
-      setLogin(true);
-      Swal.fire("Tolol!", "Login Berhasil", "success");
-    } catch (error) {
-      console.log(error);
-      Swal.fire({
-        icon: "error",
-        title: "Blokk",
-        text: "Dasar tolol",
-      });
-    }
+  // Profile
+  const showModalProfile = () => {
+    setIsModalProfileOpen(true);
+  };
+  const handleOkProfile = () => {
+    setIsModalProfileOpen(false);
+  };
+  const handleCancelProfile = () => {
+    setIsModalProfileOpen(false);
   };
 
-  useEffect(() => {
-    const token = JSON.parse(localStorage.getItem("token"));
-    setLogin(token);
-    setLogin(true);
-    const user = JSON.parse(localStorage.getItem("log"));
-    setUser(user);
-  }, [login]);
-
-  const handleSubmitRegis = async () => {
-    try {
-      const resReg = await axios.post(
-        "https://notflixtv.herokuapp.com/api/v1/users",
-        {
-          first_name: firstName,
-          last_name: lastName,
-          email: emailRegis,
-          password: sandiRegis,
-          password_confirmation: sandiConfirm,
-        }
-      );
-      setShowRegister(false);
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "oops..",
-        text: "Email or Password Wrong!",
-      });
-    }
+  // handleEvent
+  const handleChangeSearch = (e) => {
+    setData(e.target.value);
   };
 
-  const handleLogout = () => {
+  const onSubmitSearch = () => {
+    navigate(`search/${data}`);
+  };
+
+  const onFinishLogin = async (values) => {
+    dispatch(onLogin(values));
+    setIsModalLoginOpen(false);
+    form.resetFields();
+  };
+
+  const onFinishRegis = async (values) => {
+    dispatch(onRegister(values));
+    setIsModalRegisOpen(false);
+    form.resetFields();
+  };
+
+  const isUserLogin = JSON.parse(localStorage.getItem("token"));
+  const name = JSON.parse(localStorage.getItem("name"));
+  const image = JSON.parse(localStorage.getItem("image"));
+
+  const logOut = () => {
     Swal.fire({
-      title: "Log Out",
+      title: "Sure to Log Out?",
       showDenyButton: true,
       confirmButtonText: "Yes",
       denyButtonText: "No",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire("Succes Log Out", "", "success");
+        Swal.fire("Log Out Success", "Bye Users", "success");
         setTimeout(function () {
           window.location.reload(1);
         }, 1500);
@@ -149,268 +106,281 @@ const NavBar = () => {
     });
   };
 
-
-  let token = localStorage.getItem("token");
-  let profile = localStorage.getItem("user");
-  let image = localStorage.getItem("image");
-
-  // const [passConfirm, setPassConfirm] = useState("")
-
   return (
-    <Navbar bg="transparant">
-      <Container fluid>
-        <Nav style={{ cursor: "pointer" }}>
-          <img
-            style={{ marginLeft: "2rem" }}
-            src={Logo}
-            onClick={() => navigate("/")}
+    <GoogleOAuthProvider clientId="67751698887-k04h2k8e4sirhvgj6chtevcb0cqok6q8.apps.googleusercontent.com">
+      <div className="container__navigate">
+        <img className="logo__nav" src={Logo} onClick={() => navigate("/")} />
+        <div className="search__nav">
+          <input
+            type="text"
+            placeholder="What do you want to search"
+            onChange={(e) => handleChangeSearch(e)}
+            onSubmit={() => onSubmitSearch()}
           />
-        </Nav>
-        <Nav className="nav__search">
-          <Form className="d-flex" onSubmit={(e) => searchRes(e)}>
-            <Form.Control
-              type="text"
-              name="search"
-              aria-label="Search"
-              placeholder="What do you want to watch?"
-            />
-            <FontAwesomeIcon icon={SearchIcon} />
-          </Form>
-        </Nav>
+          <FontAwesomeIcon
+            style={{ paddingRight: "0", fontSize: "1rem" }}
+            icon={SearchIcon}
+            onClick={() => onSubmitSearch()}
+          />
+        </div>
 
-        {token && login && token.length ? (
-          <Nav className="nav_login" style={{display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center', paddingRight: '3rem'}}>
-            <h2 style={{fontSize: '1.25rem', lineHeight: '1.75rem', color: 'white'}}>Halo, {JSON.parse(profile)}</h2>
-
-            {user.image || user.picture ? (
-              <img onClick={handleShowProfile} className="profile-picture" src={JSON.parse(image) || JSON.parse(user.picture)} />
-            ) : (
-              <img className="profile-picture" src={account} />
-            )}
-
-            <Modal
-            size="md"
-            show={showProfile}
-            onHide={handleCloseProfile}
-            backdrop="static"
-            keyboard={false}
-            >
-              <Modal.Header closeButton>
-                <Modal.Title style={{ fontSize: "16px" }}>
-                  Your Account
-                </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form></Form>
-              </Modal.Body>
-              <Modal.Footer style={{ justifyContent: "flex-start" }}>
-                <Button variant="danger" onClick={handleLogout}>Log Out</Button>
-              </Modal.Footer>
-            </Modal>
-          </Nav>
-          
-        ) : (
-          <Nav className="nav__button">
-            <Button variant="outline-danger" onClick={handleShowLogin}>
-              Login
-            </Button>
-
-            <Modal
-              size="md"
-              show={showLogin}
-              onHide={handleCloseLogin}
-              backdrop="static"
-              keyboard={false}
-            >
-              <Modal.Header closeButton>
-                <Modal.Title style={{ fontSize: "16px" }}>
-                  Log in Your Account
-                </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form>
-                  <Form.Group style={{ marginBottom: "1.5rem" }}>
-                    <Form.Control
-                      type="email"
+        <div className="login__regis">
+          {isUserLogin === null ? (
+            <>
+              <button onClick={showModalLogin} className="login__btn">
+                Login
+              </button>
+              <Modal
+                title="Log in to your account"
+                open={isModalLoginOpen}
+                onOk={handleOkLogin}
+                onCancel={handleCancelLogin}
+                footer={null}
+              >
+                <Form
+                  name="login"
+                  className="login-form"
+                  initialValues={{
+                    remember: true,
+                  }}
+                  onFinish={onFinishLogin}
+                  form={form}
+                >
+                  <Form.Item
+                    name="email"
+                    rules={[
+                      {
+                        type: "email",
+                        message: "Please Input a Valid Email",
+                      },
+                      {
+                        required: true,
+                        message: "Please input your E-mail",
+                      },
+                    ]}
+                  >
+                    <Input
+                      size="large"
                       placeholder="Email Address"
-                      onChange={(e) => setEmail(e.target.value)}
-                      style={{
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(153, 153, 153, 1)",
-                        color: "black",
-                      }}
+                      suffix={<FontAwesomeIcon icon={emailIcon} />}
+                      style={{ borderRadius: "9999px", marginBottom: "0.5rem" }}
                     />
-                    {email.match(emailRegex) === null ? (
-                      <span style={{color: 'red'}}>Please Input a Valid Email</span>
-                    ) : (
-                      ""
-                    )}
-                    <div className="icon icon-email">
-                      <FontAwesomeIcon icon={emailIcon} />
-                    </div>
-                  </Form.Group>
-
-                  <Form.Group style={{ marginBottom: "1.5rem" }}>
-                    <Form.Control
-                      style={{
-                        border: "1px solid rgba(153, 153, 153, 1)",
-                        color: "black",
-                        borderRadius: "9999px",
-                      }}
-                      type={pass}
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your password",
+                      },
+                    ]}
+                  >
+                    <Input.Password
+                      size="large"
                       placeholder="Password"
-                      onChange={(e) => setSandi(e.target.value)}
-                      className={`${typeInput ? "typeInputPass" : ""} formPass`}
+                      style={{ borderRadius: "9999px", marginBottom: "0.5rem" }}
                     />
-                    <div className="icon icon-pass">
-                      <FontAwesomeIcon
-                        onClick={Eye}
-                        icon={showPass ? eyeIcon : eyeSlash}
-                      />
-                    </div>
-                  </Form.Group>
-                </Form>
-              </Modal.Body>
-              <Modal.Footer style={{ justifyContent: "flex-start" }}>
-                <Button type="submit" variant="danger" onClick={handleSubmit}>
-                  Login
-                </Button>
-                {/* Todo */}
-                <GoogleLogin
-                size="large"
-                text="continue_with"
-                onSuccess={(response) => {
-                  console.log(response);
-                  let decode = jwt_decode(response.credential);
-                  console.log(decode);
-                  localStorage.setItem("token", JSON.stringify(response.credential));
-                  localStorage.setItem("image", JSON.stringify(decode.picture));
-                  localStorage.setItem("user", JSON.stringify(decode.name));
-                  localStorage.setItem("log", JSON.stringify(decode));
-                  setUser(decode);
-                  setLogin(true);
-                  Swal.fire("Login Success", "", 'success');
-                }}
-                onError={() => {
-                  console.log('Login Failed')
-                }}
-                />
-              </Modal.Footer>
-            </Modal>
+                  </Form.Item>
+                  <Form.Item style={{ marginBottom: "0" }}>
+                    <div className="button__submit">
+                      <button type="submit">Login</button>
 
-            <Button variant="danger" onClick={handleShowRegister}>
-              Register
-            </Button>
-            <Modal
-              size="md"
-              show={showRegister}
-              onHide={handleCloseRegister}
-              backdrop="static"
-              keyboard={false}
-            >
-              <Modal.Header closeButton>
-                <Modal.Title style={{ fontSize: "16px" }}>
-                  Create Account
-                </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form>
-                  <Form.Group style={{ marginBottom: "1.5rem" }}>
-                    <Form.Control
-                      type="text"
+                      <div className="google__login">
+                        <GoogleLogin
+                          onSuccess={(response) => {
+                            // localStorage.setItem(
+                            //     "token",
+                            //     JSON.stringify(credentialResponse.credential)
+                            //   );
+                            //   localStorage.setItem(
+                            //     "name",
+                            //     JSON.stringify("Google")
+                            //   );
+                            //   localStorage.setItem(
+                            //     "image",
+                            //     JSON.stringify(
+                            //       "https://assets.nationbuilder.com/themes/5d1ad55ac2948011ce17704b/attachments/original/1553643295/login.png?1553643295"
+                            //     )
+                            //   );
+                            let decode = jwt_decode(response.credential);
+                            localStorage.setItem(
+                              "token",
+                              JSON.stringify(response.credential)
+                            );
+                            localStorage.setItem(
+                              "name",
+                              JSON.stringify(decode.name)
+                            );
+                            localStorage.setItem(
+                              "image",
+                              JSON.stringify(decode.picture)
+                            );
+                            Swal.fire("Login Success", "Success", "success");
+                            setTimeout(function () {
+                              window.location.reload(1);
+                            }, 1500);
+                          }}
+                          onError={() => {
+                            console.log("error");
+                          }}
+                          shape="circle"
+                        />
+                      </div>
+                    </div>
+                  </Form.Item>
+                </Form>
+              </Modal>
+              <button onClick={showModalRegis} className="regis__btn">
+                Register
+              </button>
+              <Modal
+                title="Create Your Account"
+                open={isModalRegisOpen}
+                onOk={handleOkRegis}
+                onCancel={handleCancelRegis}
+                footer={null}
+              >
+                <Form
+                  className="regis__form"
+                  initialValues={{
+                    remember: true,
+                  }}
+                  onFinish={onFinishRegis}
+                >
+                  <Form.Item
+                    name="first_name"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your first name!",
+                      },
+                    ]}
+                  >
+                    <Input
+                      size="large"
                       placeholder="First Name"
-                      onChange={(e) => setFirstName(e.target.value)}
-                      style={{
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(153, 153, 153, 1)",
-                        color: "black",
-                      }}
+                      suffix={<FontAwesomeIcon icon={usersIcons} />}
+                      style={{ borderRadius: "9999px", marginBottom: "0.5rem" }}
                     />
-                  </Form.Group>
+                  </Form.Item>
 
-                  <Form.Group style={{ marginBottom: "1.5rem" }}>
-                    <Form.Control
-                      type="text"
+                  <Form.Item
+                    name="last_name"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your last name!",
+                      },
+                    ]}
+                  >
+                    <Input
+                      size="large"
                       placeholder="Last Name"
-                      onChange={(e) => setLastName(e.target.value)}
-                      style={{
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(153, 153, 153, 1)",
-                        color: "black",
-                      }}
+                      suffix={<FontAwesomeIcon icon={usersIcons} />}
+                      style={{ borderRadius: "9999px", marginBottom: "0.5rem" }}
                     />
-                  </Form.Group>
-
-                  <Form.Group style={{ marginBottom: "1.5rem" }}>
-                    <Form.Control
-                      type="email"
+                  </Form.Item>
+                  <Form.Item
+                    name="email"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please Input your E-mail",
+                      },
+                      {
+                        type: "email",
+                        message: "Please input valid E-mail",
+                      },
+                    ]}
+                  >
+                    <Input
+                      size="large"
                       placeholder="Email Address"
-                      onChange={(e) => setEmailRegis(e.target.value)}
-                      style={{
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(153, 153, 153, 1)",
-                        color: "black",
-                      }}
+                      suffix={<FontAwesomeIcon icon={emailIcon} />}
+                      style={{ borderRadius: "9999px", marginBottom: "0.5rem" }}
                     />
-                    <div className="icon icon-emailRegis">
-                      <FontAwesomeIcon icon={emailIcon} />
-                    </div>
-                  </Form.Group>
-
-                  <Form.Group style={{ marginBottom: "1.5rem" }}>
-                    <Form.Control
-                      type={pass}
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your password",
+                      },
+                    ]}
+                  >
+                    <Input.Password
+                      size="large"
                       placeholder="Password"
-                      onChange={(e) => setSandiRegis(e.target.value)}
-                      style={{
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(153, 153, 153, 1)",
-                        color: "black",
-                      }}
-                      className={`${typeInput ? "type_password" : ""} formPass`}
+                      style={{ borderRadius: "9999px", marginBottom: "0.5rem" }}
                     />
-                    <div className="icon icon-passRegis">
-                      <FontAwesomeIcon
-                        onClick={Eye}
-                        icon={showPass ? eyeIcon : eyeSlash}
-                      />
-                    </div>
-                  </Form.Group>
-
-                  <Form.Group style={{ marginBottom: "1.5rem" }}>
-                    <Form.Control
-                      type={pass}
+                  </Form.Item>
+                  <Form.Item
+                    name="confirm_password"
+                    dependencies={["password"]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please confirm your password",
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue("password") === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(
+                            new Error("Your Confirmation Password not valid")
+                          );
+                        },
+                      }),
+                    ]}
+                  >
+                    <Input.Password
+                      size="large"
                       placeholder="Password Confirmation"
-                      onChange={(e) => setSandiConfirm(e.target.value)}
-                      style={{
-                        borderRadius: "9999px",
-                        border: "1px solid rgba(153, 153, 153, 1)",
-                        color: "black",
-                      }}
-                      className={`${typeInput ? "type_password" : ""} formPass`}
+                      style={{ borderRadius: "9999px", marginBottom: "0.5rem" }}
                     />
-                    <div className="icon icon-passRegisConf">
-                      <FontAwesomeIcon
-                        onClick={Eye}
-                        icon={showPass ? eyeIcon : eyeSlash}
-                      />
+                  </Form.Item>
+                  <Form.Item style={{ marginBottom: "0" }}>
+                    <div className="button__submit">
+                      <button type="submit">Register</button>
                     </div>
-                  </Form.Group>
+                  </Form.Item>
                 </Form>
-              </Modal.Body>
-              <Modal.Footer style={{ justifyContent: "flex-start" }}>
-                <Button variant="danger" onClick={handleSubmitRegis}>
-                  Register Now
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          </Nav>
-        )}
-      </Container>
-    </Navbar>
+              </Modal>
+            </>
+          ) : (
+            <>
+              <div className="profile__wrapper">
+                <div className="profile__display" onClick={showModalProfile}>
+                  <h3>{name}</h3>
+                  <img src={account} />
+
+                  {/* <img src={
+                                    image === null ? "https://www.pngall.com/wp-content/uploads/12/Avatar-Profile-Vector-PNG-File.png" : profile
+                                }/> */}
+                </div>
+                <Modal
+                  title="Profile Menu"
+                  open={isModalProfileOpen}
+                  onOk={handleOkProfile}
+                  onCancel={handleCancelProfile}
+                  footer={null}
+                >
+                  <Form.Item style={{ marginBottom: "0" }}>
+                    <div className="button__submit">
+                      <button onClick={logOut}>logOut</button>
+                    </div>
+                  </Form.Item>
+                </Modal>
+              </div>
+              {/* <button onClick={logOut} className="regis__btn">Log Out</button> */}
+            </>
+          )}
+        </div>
+      </div>
+    </GoogleOAuthProvider>
   );
 };
 
-export default NavBar;
+export default NavigateBar;

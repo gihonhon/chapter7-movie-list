@@ -1,23 +1,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const initialState = {
+const initialState= {
     genres: [],
-    loading: false
+    loading: false,
 };
 
 export const getGenres = createAsyncThunk("genres/getGenres", async () => {
     const response = await axios.get("https://api.themoviedb.org/3/genre/movie/list", {
         params: {
             api_key: 'a2940e397cdc84f3a8a5619d3d65b9c5',
-        }
+        },
     }).then((response) => {
         return response.data.genres;
     });
     return response;
 });
 
-export const genreSliece = createSlice({
+export const genreSlice = createSlice({
     name: "genres",
     initialState,
     reducers: {},
@@ -28,7 +28,7 @@ export const genreSliece = createSlice({
 
         [getGenres.fulfilled]: (state, { payload }) => {
             state.loading = false;
-            state.genres = payload
+            state.genres = payload;
         },
 
         [getGenres.rejected]: (state) => {
@@ -37,4 +37,4 @@ export const genreSliece = createSlice({
     }
 });
 
-export default genreSliece.reducer
+export default genreSlice.reducer;
